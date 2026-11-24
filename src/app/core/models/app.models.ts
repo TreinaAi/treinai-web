@@ -10,6 +10,8 @@ export interface ExerciseDef {
 }
 
 export interface WorkoutTemplate {
+  /** Identificador do treino (hoje 'A', 'B'...; no futuro pode ser um id vindo da API). */
+  id: string;
   nome: string;
   foco: string;
   exercicios: ExerciseDef[];
@@ -33,7 +35,8 @@ export interface ExerciseEntry {
 export interface DraftSession {
   id: number;
   data: string;
-  treino: 'A' | 'B';
+  /** Id do treino (`WorkoutTemplate.id`). Deixado como `string` para suportar N treinos (A, B, C...). */
+  treino: string;
   semana: number;
   entradas: ExerciseEntry[];
 }

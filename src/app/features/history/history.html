@@ -15,9 +15,9 @@
       <div class="hist-head" (click)="toggle(sessao.id)">
         <div style="flex:1;min-width:0">
           <div class="hist-date">{{ sessao.data | date:'dd/MM/yyyy' }}</div>
-          <div class="hist-sub">Treino {{ sessao.treino }} · Semana {{ sessao.semana }} · {{ sessao.entradas.length }} exercícios · {{ contarSeries(sessao) }} séries</div>
+          <div class="hist-sub">{{ db.templateNome(sessao.treino) }} · Semana {{ sessao.semana }} · {{ sessao.entradas.length }} exercícios · {{ contarSeries(sessao) }} séries</div>
         </div>
-        <span class="pill" [class.pill-accent]="sessao.treino === 'A'" [class.pill-blue]="sessao.treino === 'B'">{{ sessao.treino }}</span>
+        <span class="pill pill-accent">{{ sessao.treino }}</span>
       </div>
 
       @if (isAberta(sessao.id)) {

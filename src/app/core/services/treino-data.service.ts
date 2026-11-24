@@ -1,45 +1,19 @@
-import { signal, computed, effect, Service } from '@angular/core';
-import { DraftSession, Session, Measurement, WorkoutTemplate } from '../models/app.models';
+import { signal, computed, effect, inject, Service } from '@angular/core';
+import { DraftSession, Session, Measurement } from '../models/app.models';
 import { todayISO } from '../utils/format.util';
+import { WorkoutCatalogService } from './workout-catalog.service';
 
 const KEY = 'treinai_app_v1';
 
-const TREINOS: Record<'A' | 'B', WorkoutTemplate> = {
-  A: {
-    nome: 'Treino A',
-    foco: 'Peito · Costas · Pernas · Ombros · Braços · Antebraço · Abdômen',
-    exercicios: [
-      { nome:'Supino reto (barra ou máquina)', grupoMuscular:'Peito', series:3, repeticoes:'8–12', descansoTexto:'2–3 min', descansoSegundos:150, ritmo:'2–3 s descida; subir controlado', observacao:'Ajuste banco e escápulas; amplitude confortável.' },
-      { nome:'Crucifixo na máquina ou crossover', grupoMuscular:'Peito', series:1, repeticoes:'12–15', descansoTexto:'60–90 s', descansoSegundos:75, ritmo:'2 s descida; sem impulso', observacao:'Foco em controle e alongamento confortável.' },
-      { nome:'Puxada frontal', grupoMuscular:'Costas', series:3, repeticoes:'8–12', descansoTexto:'2 min', descansoSegundos:120, ritmo:'Puxar cotovelos para baixo', observacao:'Evite jogar o tronco para trás.' },
-      { nome:'Leg press 45°', grupoMuscular:'Quadríceps/glúteos', series:3, repeticoes:'10–12', descansoTexto:'2–3 min', descansoSegundos:150, ritmo:'Descer controlado', observacao:'Não tirar quadril do encosto.' },
-      { nome:'Cadeira extensora', grupoMuscular:'Quadríceps', series:2, repeticoes:'12–15', descansoTexto:'60–90 s', descansoSegundos:75, ritmo:'Pausa breve no topo', observacao:'Sem chutar ou usar impulso.' },
-      { nome:'Elevação lateral', grupoMuscular:'Ombros', series:2, repeticoes:'12–15', descansoTexto:'60–90 s', descansoSegundos:75, ritmo:'Subida controlada', observacao:'Não encolher os ombros.' },
-      { nome:'Tríceps na polia', grupoMuscular:'Tríceps', series:2, repeticoes:'10–15', descansoTexto:'60–90 s', descansoSegundos:75, ritmo:'Estender sem balançar', observacao:'Cotovelos próximos ao corpo.' },
-      { nome:'Rosca inversa', grupoMuscular:'Antebraço/braquiorradial', series:2, repeticoes:'12–15', descansoTexto:'60–90 s', descansoSegundos:75, ritmo:'Punho neutro; movimento controlado', observacao:'Carga leve o bastante para não roubar.' },
-      { nome:'Abdominal máquina', grupoMuscular:'Abdômen', series:2, repeticoes:'12–15', descansoTexto:'60 s', descansoSegundos:60, ritmo:'Flexionar o tronco controlado', observacao:'Evite puxar com os braços.' }
-    ]
-  },
-  B: {
-    nome: 'Treino B',
-    foco: 'Peito · Costas · Pernas · Ombros · Bíceps · Antebraço · Panturrilha',
-    exercicios: [
-      { nome:'Supino inclinado com halteres', grupoMuscular:'Peito', series:3, repeticoes:'8–12', descansoTexto:'2–3 min', descansoSegundos:150, ritmo:'Descer controlado; subir sem bater halteres', observacao:'Inclinação moderada do banco.' },
-      { nome:'Crucifixo na máquina ou crossover', grupoMuscular:'Peito', series:1, repeticoes:'12–15', descansoTexto:'60–90 s', descansoSegundos:75, ritmo:'Movimento controlado', observacao:'Não forçar amplitude dolorosa.' },
-      { nome:'Remada baixa', grupoMuscular:'Costas', series:3, repeticoes:'8–12', descansoTexto:'2 min', descansoSegundos:120, ritmo:'Puxar cotovelos para trás', observacao:'Evite impulso e excesso de balanço.' },
-      { nome:'Agachamento no Smith', grupoMuscular:'Quadríceps/glúteos', series:3, repeticoes:'8–12', descansoTexto:'2–3 min', descansoSegundos:150, ritmo:'Descer controlado', observacao:'Use amplitude que mantenha boa postura.' },
-      { nome:'Mesa flexora', grupoMuscular:'Posterior de coxa', series:3, repeticoes:'10–15', descansoTexto:'60–90 s', descansoSegundos:75, ritmo:'Flexionar sem tirar quadril do apoio', observacao:'Controle a volta.' },
-      { nome:'Desenvolvimento de ombros', grupoMuscular:'Ombros', series:2, repeticoes:'8–12', descansoTexto:'2 min', descansoSegundos:120, ritmo:'Subir sem hiperestender lombar', observacao:'Pode usar máquina se mais confortável.' },
-      { nome:'Rosca direta', grupoMuscular:'Bíceps', series:2, repeticoes:'10–15', descansoTexto:'60–90 s', descansoSegundos:75, ritmo:'Cotovelos estáveis', observacao:'Evite balanço do tronco.' },
-      { nome:'Flexão de punho', grupoMuscular:'Antebraço/flexores', series:2, repeticoes:'12–15', descansoTexto:'60 s', descansoSegundos:60, ritmo:'Movimento curto e controlado', observacao:'Antebraço apoiado; sem dor no punho.' },
-      { nome:'Panturrilha (máquina)', grupoMuscular:'Panturrilhas', series:2, repeticoes:'12–15', descansoTexto:'60–90 s', descansoSegundos:75, ritmo:'Pausa no alongamento e no topo', observacao:'Amplitude controlada.' }
-    ]
-  }
-};
-
 @Service()
 export class TreinoDataService {
-  public readonly templates = signal(TREINOS);
+  private catalog = inject(WorkoutCatalogService);
+
+  /** Catálogo de treinos disponíveis (hoje mockado, no futuro vindo de uma API). */
+  public readonly templates = this.catalog.templates;
+  public readonly templatesLoading = this.catalog.loading;
+  public readonly templatesError = this.catalog.error;
+
   public readonly sessions = signal<Session[]>([]);
   public readonly evo = signal<Measurement[]>([]);
   public readonly draft = signal<DraftSession | null>(null);
@@ -50,10 +24,27 @@ export class TreinoDataService {
     return sessions.length ? sessions[sessions.length - 1] : null;
   });
 
-  /** Próximo treino sugerido, alternando A/B com base na última sessão registrada. */
-  public readonly proximoTreino = computed<'A' | 'B'>(() => {
+  /**
+   * Próximo treino sugerido, seguindo a ordem do catálogo (A → B → C → ... → A...) com base
+   * no treino da última sessão. Funciona com qualquer quantidade de treinos, não só A/B.
+   */
+  public readonly proximoTreino = computed<string | null>(() => {
+    const templates = this.templates();
+    if (!templates.length) return null;
+
     const ultima = this.ultimaSessao();
-    return ultima ? (ultima.treino === 'A' ? 'B' : 'A') : 'A';
+    if (!ultima) return templates[0].id;
+
+    const indiceAtual = templates.findIndex(t => t.id === ultima.treino);
+    if (indiceAtual === -1) return templates[0].id;
+
+    return templates[(indiceAtual + 1) % templates.length].id;
+  });
+
+  /** Template do treino em andamento (draft), já resolvido a partir do catálogo. */
+  public readonly draftTemplate = computed(() => {
+    const d = this.draft();
+    return d ? (this.catalog.templateById(d.treino) ?? null) : null;
   });
 
   constructor() {
@@ -67,6 +58,20 @@ export class TreinoDataService {
       };
       localStorage.setItem(KEY, JSON.stringify(state));
     });
+  }
+
+  templateById(id: string) {
+    return this.catalog.templateById(id);
+  }
+
+  /** Nome amigável do treino (ex.: "Treino A"), com fallback para o id caso ainda não tenha carregado. */
+  templateNome(id: string): string {
+    return this.catalog.templateNome(id);
+  }
+
+  /** Recarrega o catálogo de treinos (ex.: botão "tentar novamente" após falha de carregamento). */
+  recarregarTemplates(): Promise<void> {
+    return this.catalog.reload();
   }
 
   private loadFromStorage() {
@@ -83,11 +88,16 @@ export class TreinoDataService {
     }
   }
 
-  startSession(treino: 'A' | 'B') {
-    const t = this.templates()[treino];
+  startSession(templateId: string) {
+    const template = this.catalog.templateById(templateId);
+    if (!template) {
+      console.error(`Treino "${templateId}" não encontrado no catálogo.`);
+      return;
+    }
+
     const ultimaSemana = this.sessions().length ? (this.sessions()[this.sessions().length - 1].semana || 1) : 1;
 
-    const entradas = t.exercicios.map((ex, i) => {
+    const entradas = template.exercicios.map((ex, i) => {
       const anterior = this.ultimaExecucao(ex.nome);
       return {
         indiceExercicio: i,
@@ -106,7 +116,7 @@ export class TreinoDataService {
     this.draft.set({
       id: Date.now(),
       data: todayISO(),
-      treino,
+      treino: templateId,
       semana: ultimaSemana,
       entradas
     });
@@ -136,6 +146,9 @@ export class TreinoDataService {
     const d = this.draft();
     if (!d) return false;
 
+    const template = this.catalog.templateById(d.treino);
+    if (!template) return false;
+
     const temDados = d.entradas.some(en =>
       en.sets.some(s => (s.kg !== '' && s.kg != null) || (s.reps !== '' && s.reps != null) || s.concluida)
     );
@@ -148,7 +161,7 @@ export class TreinoDataService {
       treino: d.treino,
       entradas: d.entradas
         .map(en => {
-          const ex = this.templates()[d.treino].exercicios[en.indiceExercicio];
+          const ex = template.exercicios[en.indiceExercicio];
           return {
             exercicio: ex.nome,
             grupoMuscular: ex.grupoMuscular,

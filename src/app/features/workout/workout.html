@@ -1,47 +1,56 @@
-@if (!db.draft()) {
+@if (db.templatesLoading()) {
+  <div class="empty">Carregando treinos…</div>
+} @else if (db.templatesError()) {
+  <div class="empty">
+    {{ db.templatesError() }}
+    <br><button class="btn tiny ghost" style="margin-top:12px" (click)="db.recarregarTemplates()">Tentar novamente</button>
+  </div>
+} @else if (!db.draft()) {
   @if (db.ultimaSessao(); as ultima) {
     <div class="card" style="padding:12px 14px">
       <div class="row" style="justify-content:space-between">
         <div>
           <div class="small muted">Último treino</div>
-          <div style="font-weight:650">Treino {{ ultima.treino }} · {{ ultima.data | date:'dd/MM/yyyy' }}</div>
+          <div style="font-weight:650">{{ db.templateNome(ultima.treino) }} · {{ ultima.data | date:'dd/MM/yyyy' }}</div>
         </div>
         <span class="pill pill-accent">{{ ultima.entradas.length }} ex.</span>
       </div>
     </div>
   }
 
-  @for (w of abasTreino; track w) {
+  @for (template of db.templates(); track template.id) {
     <div class="wcard">
       <div class="wtop">
         <div>
-          <h3>Treino {{ w }}</h3>
-          <div class="wsub">{{ db.templates()[w].exercicios.length }} exercícios · {{ focoResumo(w) }}…</div>
+          <h3>{{ template.nome }}</h3>
+          <div class="wsub">{{ template.exercicios.length }} exercícios · {{ focoResumo(template) }}…</div>
         </div>
-        @if (w === db.proximoTreino()) {
+        @if (template.id === db.proximoTreino()) {
           <span class="pill pill-next">Próximo</span>
         } @else {
           <span class="pill pill-mut">Alternativo</span>
         }
       </div>
       <div class="wlist">
-        @for (ex of db.templates()[w].exercicios.slice(0, 4); track ex.nome) {
+        @for (ex of template.exercicios.slice(0, 4); track ex.nome) {
           • {{ ex.nome }} <span class="muted">({{ ex.series }}×{{ ex.repeticoes }})</span><br>
         }
-        <span class="muted">+ {{ db.templates()[w].exercicios.length - 4 }} exercícios…</span>
+        @if (template.exercicios.length > 4) {
+          <span class="muted">+ {{ template.exercicios.length - 4 }} exercícios…</span>
+        }
       </div>
-      <button class="btn primary" (click)="iniciar(w)">Iniciar Treino {{ w }}</button>
+      <button class="btn primary" (click)="iniciar(template.id)">Iniciar {{ template.nome }}</button>
     </div>
   }
 
   <p class="small muted" style="text-align:center;margin:16px 8px 0">
-    Alterne A → B → A na mesma semana. Na semana seguinte comece pelo B.
+    Alterne entre os treinos disponíveis, seguindo a ordem sugerida.
   </p>
-} @else {
+} @else if (db.draftTemplate(); as template) {
   <div class="card">
     <div class="row-between" style="margin:0 0 12px">
-      <span class="pill pill-accent">Treino {{ db.draft()!.treino }}</span>
-      <span class="small muted">{{ db.templates()[db.draft()!.treino].exercicios.length }} exercícios</span>
+      <span class="pill pill-accent">{{ template.nome }}</span>
+      <span class="small muted">{{ template.exercicios.length }} exercícios</span>
     </div>
     <div class="grid2">
       <label class="field">Data
@@ -53,7 +62,7 @@
     </div>
   </div>
 
-  @for (ex of db.templates()[db.draft()!.treino].exercicios; track ex.nome; let i = $index) {
+  @for (ex of template.exercicios; track ex.nome; let i = $index) {
     <div class="card ex">
       <div class="ex-head" (click)="toggleExpand(i)">
         <div class="ex-num">{{ i + 1 }}</div>

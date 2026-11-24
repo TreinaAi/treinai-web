@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { WorkoutTemplate } from '../../core/models/app.models';
 import { RestTimerService } from '../../core/services/rest-timer.service';
 import { ToastService } from '../../core/services/toast.service';
 import { TreinoDataService } from '../../core/services/treino-data.service';
@@ -17,11 +18,9 @@ export class WorkoutComponent {
   private restTimer = inject(RestTimerService);
   private toast = inject(ToastService);
 
-  public readonly abasTreino: ('A' | 'B')[] = ['A', 'B'];
-
   /** Foco resumido (3 grupos musculares) usado na tela de escolha do treino. */
-  focoResumo(treino: 'A' | 'B'): string {
-    return this.db.templates()[treino].foco.split(' · ').slice(0, 3).join(' · ');
+  focoResumo(template: WorkoutTemplate): string {
+    return template.foco.split(' · ').slice(0, 3).join(' · ');
   }
 
   contarConcluidas(indiceExercicio: number): number {
@@ -30,9 +29,9 @@ export class WorkoutComponent {
     return draft.entradas[indiceExercicio].sets.filter(s => s.concluida).length;
   }
 
-  iniciar(treino: 'A' | 'B') {
-    this.db.startSession(treino);
-    this.toast.show(`Treino ${treino} iniciado 💪`);
+  iniciar(templateId: string) {
+    this.db.startSession(templateId);
+    this.toast.show(`${this.db.templateNome(templateId)} iniciado 💪`);
   }
 
   toggleExpand(indiceExercicio: number) {
@@ -49,7 +48,9 @@ export class WorkoutComponent {
 
   toggleSetDone(indiceExercicio: number, indiceSet: number) {
     const draft = this.db.draft();
-    if (!draft) return;
+    const template = this.db.draftTemplate();
+    if (!draft || !template) return;
+
     const concluida = !draft.entradas[indiceExercicio].sets[indiceSet].concluida;
 
     this.db.updateDraft(d => {
@@ -57,7 +58,7 @@ export class WorkoutComponent {
     });
 
     if (concluida) {
-      const ex = this.db.templates()[draft.treino].exercicios[indiceExercicio];
+      const ex = template.exercicios[indiceExercicio];
       this.restTimer.start(ex.descansoSegundos, `Descanso · ${ex.nome}`);
     }
   }
