@@ -1,0 +1,14 @@
+.hist-item{background:var(--surf);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.hist-head{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer}
+.hist-date{font-weight:650;font-size:14px}
+.hist-sub{font-size:11.5px;color:var(--mut);margin-top:2px}
+.hist-body{padding:0 14px 14px;border-top:1px solid var(--line);padding-top:12px}
+.hist-ex{padding:8px 0;border-bottom:1px dashed rgba(38,50,62,.7)}
+.hist-ex:last-child{border-bottom:none}
+.hist-ex-name{font-size:13.5px;font-weight:600}
+.hist-sets{font-size:12.5px;color:var(--acc);margin-top:3px;font-variant-numeric:tabular-nums}
+.hist-note{font-size:11.5px;color:var(--mut);margin-top:3px}
+
+.pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;}
+.pill-accent{background:rgba(34,211,165,.14);color:var(--acc)}
+.pill-blue{background:rgba(59,130,246,.15);color:#7cb0ff}

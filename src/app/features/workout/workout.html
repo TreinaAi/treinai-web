@@ -1,56 +1,99 @@
 @if (!db.draft()) {
-  <div class="card">
-    <h2>Escolha o treino</h2>
-    <p>Alterne A → B → A na mesma semana.</p>
-  </div>
+  @if (db.ultimaSessao(); as ultima) {
+    <div class="card" style="padding:12px 14px">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <div class="small muted">Último treino</div>
+          <div style="font-weight:650">Treino {{ ultima.treino }} · {{ ultima.data | date:'dd/MM/yyyy' }}</div>
+        </div>
+        <span class="pill pill-accent">{{ ultima.entradas.length }} ex.</span>
+      </div>
+    </div>
+  }
 
   @for (w of abasTreino; track w) {
     <div class="wcard">
-      <h3>Treino {{ w }}</h3>
-      <p class="muted">{{ db.templates()[w].foco }}</p>
-      <button class="btn primary" (click)="db.startSession(w)">Iniciar Treino {{ w }}</button>
-    </div>
-  }
-} @else {
-  <div class="card">
-    <div class="row-between">
-      <h2>Treino {{ db.draft()!.treino }}</h2>
-      <button class="btn tiny danger" (click)="db.cancelSession()">Descartar</button>
-    </div>
-    <label>Semana: 
-      <input type="number" [ngModel]="db.draft()!.semana" 
-             (ngModelChange)="db.updateDraft(d => d.semana = $event)">
-    </label>
-  </div>
-
-  @for (ex of db.templates()[db.draft()!.treino].exercicios; track $index; let i = $index) {
-    <div class="card ex">
-      <div class="ex-header">
-        <span class="ex-num">{{ i + 1 }}</span>
+      <div class="wtop">
         <div>
-          <div class="ex-name">{{ ex.nome }}</div>
-          <div class="ex-meta">{{ ex.grupoMuscular }} · {{ ex.series }}×{{ ex.repeticoes }}</div>
+          <h3>Treino {{ w }}</h3>
+          <div class="wsub">{{ db.templates()[w].exercicios.length }} exercícios · {{ focoResumo(w) }}…</div>
         </div>
-      </div>
-      
-      <div class="ex-body">
-        @for (set of db.draft()!.entradas[i].sets; track $index; let s = $index) {
-          <div class="set-row">
-            <span class="set-n">{{ s + 1 }}</span>
-            <input class="inp" placeholder="kg" 
-                   [ngModel]="set.kg" 
-                   (ngModelChange)="updateSet(i, s, 'kg', $event)">
-            <span>×</span>
-            <input class="inp" placeholder="reps" 
-                   [ngModel]="set.reps" 
-                   (ngModelChange)="updateSet(i, s, 'reps', $event)">
-            <button class="check" [class.done]="set.concluida" 
-                    (click)="toggleSetDone(i, s)">✓</button>
-          </div>
+        @if (w === db.proximoTreino()) {
+          <span class="pill pill-next">Próximo</span>
+        } @else {
+          <span class="pill pill-mut">Alternativo</span>
         }
       </div>
+      <div class="wlist">
+        @for (ex of db.templates()[w].exercicios.slice(0, 4); track ex.nome) {
+          • {{ ex.nome }} <span class="muted">({{ ex.series }}×{{ ex.repeticoes }})</span><br>
+        }
+        <span class="muted">+ {{ db.templates()[w].exercicios.length - 4 }} exercícios…</span>
+      </div>
+      <button class="btn primary" (click)="iniciar(w)">Iniciar Treino {{ w }}</button>
     </div>
   }
 
-  <button class="btn primary" (click)="db.finishSession()">Finalizar Treino</button>
+  <p class="small muted" style="text-align:center;margin:16px 8px 0">
+    Alterne A → B → A na mesma semana. Na semana seguinte comece pelo B.
+  </p>
+} @else {
+  <div class="card">
+    <div class="row-between" style="margin:0 0 12px">
+      <span class="pill pill-accent">Treino {{ db.draft()!.treino }}</span>
+      <span class="small muted">{{ db.templates()[db.draft()!.treino].exercicios.length }} exercícios</span>
+    </div>
+    <div class="grid2">
+      <label class="field">Data
+        <input class="inp" type="date" [ngModel]="db.draft()!.data" (ngModelChange)="db.updateDraft(d => d.data = $event)">
+      </label>
+      <label class="field">Semana
+        <input class="inp" type="number" min="1" inputmode="numeric" [ngModel]="db.draft()!.semana" (ngModelChange)="db.updateDraft(d => d.semana = $event)">
+      </label>
+    </div>
+  </div>
+
+  @for (ex of db.templates()[db.draft()!.treino].exercicios; track ex.nome; let i = $index) {
+    <div class="card ex">
+      <div class="ex-head" (click)="toggleExpand(i)">
+        <div class="ex-num">{{ i + 1 }}</div>
+        <div class="ex-titles">
+          <div class="ex-name">{{ ex.nome }}</div>
+          <div class="ex-meta">{{ ex.grupoMuscular }} · {{ ex.series }}×{{ ex.repeticoes }} · {{ ex.descansoTexto }} · RIR 2–3</div>
+        </div>
+        <div class="ex-progress">{{ contarConcluidas(i) }}/{{ db.draft()!.entradas[i].sets.length }}</div>
+      </div>
+
+      @if (db.draft()!.entradas[i].expandido) {
+        <div class="ex-body">
+          @for (set of db.draft()!.entradas[i].sets; track $index; let s = $index) {
+            <div class="set-row">
+              <span class="set-n">{{ s + 1 }}</span>
+              <input class="inp" inputmode="decimal" placeholder="kg"
+                     [ngModel]="set.kg" (ngModelChange)="updateSet(i, s, 'kg', $event)">
+              <span class="x">×</span>
+              <input class="inp" inputmode="numeric" [placeholder]="ex.repeticoes"
+                     [ngModel]="set.reps" (ngModelChange)="updateSet(i, s, 'reps', $event)">
+              <button class="check" [class.done]="set.concluida" (click)="toggleSetDone(i, s)">✓</button>
+            </div>
+          }
+
+          <div class="ex-foot">
+            <input class="inp" placeholder="RIR final"
+                   [ngModel]="db.draft()!.entradas[i].rir" (ngModelChange)="db.updateDraft(d => d.entradas[i].rir = $event)">
+            <input class="inp" placeholder="Descanso usado"
+                   [ngModel]="db.draft()!.entradas[i].descansoUsado" (ngModelChange)="db.updateDraft(d => d.entradas[i].descansoUsado = $event)">
+          </div>
+          <input class="inp" placeholder="Observações / técnica"
+                 [ngModel]="db.draft()!.entradas[i].observacoes" (ngModelChange)="db.updateDraft(d => d.entradas[i].observacoes = $event)">
+          <div class="hint">💡 <strong>Execução:</strong> {{ ex.ritmo }}. {{ ex.observacao }}</div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="actions">
+    <button class="btn ghost" (click)="descartar()">Descartar</button>
+    <button class="btn primary" (click)="finalizar()">Finalizar treino</button>
+  </div>
 }

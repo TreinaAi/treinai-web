@@ -1,31 +1,87 @@
 <div class="card">
-  <div class="section-title" style="margin-top: 0;">Nova Medição</div>
-  
+  <div class="section-title" style="margin-top: 0;">Nova medição</div>
+  <p class="small muted" style="margin-bottom:12px">Registre em condições semelhantes, preferencialmente pela manhã.</p>
+
   <div class="grid2" style="margin-bottom: 10px;">
     <label class="field">Data <input type="date" class="inp" [(ngModel)]="novaMedicao.data"></label>
-    <label class="field">Peso (kg) <input type="text" class="inp" [(ngModel)]="novaMedicao.peso" placeholder="75.5"></label>
-    <label class="field">Cintura (cm) <input type="text" class="inp" [(ngModel)]="novaMedicao.cintura" placeholder="80"></label>
-    <label class="field">Braço (cm) <input type="text" class="inp" [(ngModel)]="novaMedicao.braco" placeholder="35"></label>
+    <label class="field">Peso (kg) <input class="inp" inputmode="decimal" [(ngModel)]="novaMedicao.peso" placeholder="72.5"></label>
+    <label class="field">Cintura (cm) <input class="inp" inputmode="decimal" [(ngModel)]="novaMedicao.cintura" placeholder="80"></label>
+    <label class="field">Peito (cm) <input class="inp" inputmode="decimal" [(ngModel)]="novaMedicao.peito" placeholder="98"></label>
+    <label class="field">Braço (cm) <input class="inp" inputmode="decimal" [(ngModel)]="novaMedicao.braco" placeholder="35"></label>
+    <label class="field">Coxa (cm) <input class="inp" inputmode="decimal" [(ngModel)]="novaMedicao.coxa" placeholder="55"></label>
+    <label class="field">Sono médio (h) <input class="inp" inputmode="decimal" [(ngModel)]="novaMedicao.sono" placeholder="7.5"></label>
+    <label class="field">Observações <input class="inp" [(ngModel)]="novaMedicao.observacoes" placeholder="opcional"></label>
   </div>
-  
-  <button class="btn primary" (click)="salvar()">Salvar Medição</button>
+
+  <button class="btn primary" (click)="salvar()">Salvar medição</button>
 </div>
+
+@if (resumo(); as r) {
+  <div class="card">
+    <div class="section-title" style="margin-top:0">Resumo</div>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="k">Peso</div>
+        <div class="v">{{ r.ultima.peso || '—' }}<span style="font-size:11px"> kg</span></div>
+        <div class="d" [class]="variacaoClasse(r.deltaPeso, false)">{{ variacaoTexto(r.deltaPeso) }}</div>
+      </div>
+      <div class="stat">
+        <div class="k">Cintura</div>
+        <div class="v">{{ r.ultima.cintura || '—' }}<span style="font-size:11px"> cm</span></div>
+        <div class="d" [class]="variacaoClasse(r.deltaCintura, true)">{{ variacaoTexto(r.deltaCintura) }}</div>
+      </div>
+      <div class="stat">
+        <div class="k">Braço</div>
+        <div class="v">{{ r.ultima.braco || '—' }}<span style="font-size:11px"> cm</span></div>
+        <div class="d" [class]="variacaoClasse(r.deltaBraco, false)">{{ variacaoTexto(r.deltaBraco) }}</div>
+      </div>
+    </div>
+
+    <div class="section-title">Peso ao longo do tempo</div>
+    @if (chart(); as g) {
+      <svg [attr.viewBox]="g.viewBox" class="chart" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#22d3a5" stop-opacity=".32"/>
+            <stop offset="100%" stop-color="#22d3a5" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <polygon [attr.points]="g.area" fill="url(#grad)"/>
+        <polyline [attr.points]="g.linha" fill="none" stroke="#22d3a5" stroke-width="2.4"
+                  stroke-linejoin="round" stroke-linecap="round"/>
+        @for (p of g.pontos; track $index) {
+          <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3.2" fill="#22d3a5"/>
+        }
+      </svg>
+      <div class="row" style="justify-content:space-between;margin-top:4px">
+        <span class="tiny muted">{{ g.inicio }}</span>
+        <span class="tiny muted">{{ g.fim }}</span>
+      </div>
+    } @else {
+      <div class="empty" style="margin-top:10px">Adicione pelo menos 2 medições de peso para ver o gráfico.</div>
+    }
+  </div>
+}
 
 <div class="section-title">Histórico de Medições</div>
 
-@if (db.evo().length === 0) {
-  <div class="empty">Nenhuma medição registrada.</div>
+@if (listaOrdenada().length === 0) {
+  <div class="empty"><span class="big">📈</span>Nenhuma medição registrada.</div>
 } @else {
-  @for (evo of db.evo().slice().reverse(); track evo.id) {
-    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <div style="font-weight: 600;">{{ evo.data | date:'dd/MM/yyyy' }}</div>
-        <div class="small muted">
-          @if (evo.peso) { Peso: {{ evo.peso }}kg } 
-          @if (evo.braco) { · Braço: {{ evo.braco }}cm }
+  <div class="card">
+    @for (evo of listaOrdenada(); track evo.id) {
+      <div class="evo-row">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight: 600;">{{ evo.data | date:'dd/MM/yyyy' }}</div>
+          <div class="evo-metrics">
+            {{ evo.peso ? evo.peso + ' kg' : '' }}{{ evo.cintura ? ' · cintura ' + evo.cintura : '' }}{{ evo.peito ? ' · peito ' + evo.peito : '' }}{{ evo.braco ? ' · braço ' + evo.braco : '' }}{{ evo.coxa ? ' · coxa ' + evo.coxa : '' }}{{ evo.sono ? ' · sono ' + evo.sono + 'h' : '' }}
+          </div>
+          @if (evo.observacoes) {
+            <div class="evo-metrics" style="color:#7f8fa0">📝 {{ evo.observacoes }}</div>
+          }
         </div>
+        <button class="x-btn" (click)="excluir(evo.id)">✕</button>
       </div>
-      <button class="btn tiny danger" (click)="db.removeEvo(evo.id)">✕</button>
-    </div>
-  }
+    }
+  </div>
 }

@@ -1,35 +1,49 @@
 @if (db.sessions().length === 0) {
   <div class="empty">
-    <span style="font-size: 30px; display: block; margin-bottom: 8px;">📋</span>
+    <span class="big">📋</span>
     Nenhuma sessão registrada ainda.<br>
     Comece pela aba <strong>Treino</strong>.
   </div>
 } @else {
-  <div class="section-title">Suas Sessões</div>
-  
-  @for (session of db.sessions().slice().reverse(); track session.id) {
-    <div class="card">
-      <div class="row-between" style="margin: 0 0 10px;">
-        <div>
-          <div style="font-weight: 650;">{{ session.data | date:'dd/MM/yyyy' }}</div>
-          <div class="small muted">Semana {{ session.semana }} · {{ session.entradas.length }} exercícios</div>
+  <div class="row-between">
+    <h2 style="font-size:17px">Sessões</h2>
+    <button class="btn tiny ghost" (click)="exportar()">Exportar CSV</button>
+  </div>
+
+  @for (sessao of sessoesOrdenadas(); track sessao.id) {
+    <div class="hist-item">
+      <div class="hist-head" (click)="toggle(sessao.id)">
+        <div style="flex:1;min-width:0">
+          <div class="hist-date">{{ sessao.data | date:'dd/MM/yyyy' }}</div>
+          <div class="hist-sub">Treino {{ sessao.treino }} · Semana {{ sessao.semana }} · {{ sessao.entradas.length }} exercícios · {{ contarSeries(sessao) }} séries</div>
         </div>
-        <span class="pill" style="background: rgba(34,211,165,.14); color: var(--acc);">Treino {{ session.treino }}</span>
+        <span class="pill" [class.pill-accent]="sessao.treino === 'A'" [class.pill-blue]="sessao.treino === 'B'">{{ sessao.treino }}</span>
       </div>
-      
-      <div style="border-top: 1px solid var(--line); padding-top: 10px;">
-        @for (entrada of session.entradas; track $index) {
-          <div style="margin-bottom: 8px; font-size: 13px;">
-            <div style="font-weight: 600;">{{ entrada.exercicio }}</div>
-            <div class="small" style="color: var(--acc);">
-              {{ entrada.sets.length }} séries: 
-              @for (set of entrada.sets; track $index) {
-                {{ set.kg }}kg×{{ set.reps }} 
+
+      @if (isAberta(sessao.id)) {
+        <div class="hist-body">
+          @if (calcularVolume(sessao) > 0) {
+            <div class="small muted" style="margin-bottom:10px">Volume total: <strong style="color:var(--acc)">{{ calcularVolume(sessao) }} kg</strong></div>
+          }
+          @for (entrada of sessao.entradas; track $index) {
+            <div class="hist-ex">
+              <div class="hist-ex-name">{{ entrada.exercicio }}</div>
+              <div class="hist-sets">
+                @for (set of entrada.sets; track $index; let last = $last) {
+                  {{ set.kg || '–' }}kg × {{ set.reps || '–' }}{{ last ? '' : '  ·  ' }}
+                }
+              </div>
+              @if (entrada.rir || entrada.descansoUsado) {
+                <div class="hist-note">RIR: {{ entrada.rir || '–' }} · Descanso: {{ entrada.descansoUsado || '–' }}</div>
+              }
+              @if (entrada.observacoes) {
+                <div class="hist-note">📝 {{ entrada.observacoes }}</div>
               }
             </div>
-          </div>
-        }
-      </div>
+          }
+          <button class="btn tiny danger" style="margin-top:12px" (click)="excluir(sessao.id)">Excluir sessão</button>
+        </div>
+      }
     </div>
   }
 }

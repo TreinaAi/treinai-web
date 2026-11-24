@@ -1,0 +1,10 @@
+<div class="timerbar" [class.hidden]="!timer.visible()">
+  <div class="timer-time">{{ timer.formattedTime() }}</div>
+  <div class="timer-info">
+    <div class="timer-label">{{ timer.label() }}</div>
+    <div class="timer-track"><div class="timer-fill" [style.width.%]="timer.fillPercent()"></div></div>
+  </div>
+  <button class="timer-btn" (click)="timer.addTime(-30)">−30s</button>
+  <button class="timer-btn" (click)="timer.addTime(15)">+15s</button>
+  <button class="timer-btn" (click)="timer.stop()">✕</button>
+</div>
