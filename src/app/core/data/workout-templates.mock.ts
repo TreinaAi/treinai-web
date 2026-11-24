@@ -9,7 +9,9 @@ import { WorkoutTemplate } from '../models/app.models';
  */
 export const WORKOUT_TEMPLATES_MOCK: WorkoutTemplate[] = [
   {
-    id: 'A',
+    // Ids propositalmente no formato UUID (como uma API real tende a gerar), em vez de 'A'/'B',
+    // para garantir que nada no app dependa do id ser uma letra significativa.
+    id: '7a1f9c3e-4b2d-4e8a-9f61-2c5d8b3a1e70',
     nome: 'Treino A',
     foco: 'Peito · Costas · Pernas · Ombros · Braços · Antebraço · Abdômen',
     exercicios: [
@@ -25,7 +27,7 @@ export const WORKOUT_TEMPLATES_MOCK: WorkoutTemplate[] = [
     ]
   },
   {
-    id: 'B',
+    id: '3d8e6a12-9f4c-4b7d-8e2a-5f1c9d4b6a83',
     nome: 'Treino B',
     foco: 'Peito · Costas · Pernas · Ombros · Bíceps · Antebraço · Panturrilha',
     exercicios: [

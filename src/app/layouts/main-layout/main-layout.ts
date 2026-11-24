@@ -30,7 +30,7 @@ export class MainLayoutComponent {
     const url = this.urlAtual();
     if (url.startsWith('/workout')) {
       const draft = this.db.draft();
-      return draft ? `Sessão em andamento · Treino ${draft.treino}` : 'Escolha o treino do dia';
+      return draft ? `Sessão em andamento · ${this.db.templateNome(draft.treino)}` : 'Escolha o treino do dia';
     }
     if (url.startsWith('/history')) {
       return `${this.db.sessions().length} sessão(ões) registrada(s)`;

@@ -217,7 +217,7 @@ export class TreinoDataService {
       .sort((a, b) => (a.data > b.data ? 1 : -1))
       .forEach(s => s.entradas.forEach(en => {
         linhas.push([
-          s.data, s.semana, s.treino, en.exercicio, en.grupoMuscular,
+          s.data, s.semana, this.templateNome(s.treino), en.exercicio, en.grupoMuscular,
           en.sets.map(x => `${x.kg || '–'}x${x.reps || '–'}`).join(' | '),
           en.rir, en.descansoUsado, en.observacoes
         ]);

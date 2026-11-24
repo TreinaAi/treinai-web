@@ -1,4 +1,6 @@
-@if (db.sessions().length === 0) {
+@if (db.templatesLoading()) {
+  <div class="empty">Carregando treinos…</div>
+} @else if (db.sessions().length === 0) {
   <div class="empty">
     <span class="big">📋</span>
     Nenhuma sessão registrada ainda.<br>
@@ -17,7 +19,6 @@
           <div class="hist-date">{{ sessao.data | date:'dd/MM/yyyy' }}</div>
           <div class="hist-sub">{{ db.templateNome(sessao.treino) }} · Semana {{ sessao.semana }} · {{ sessao.entradas.length }} exercícios · {{ contarSeries(sessao) }} séries</div>
         </div>
-        <span class="pill pill-accent">{{ sessao.treino }}</span>
       </div>
 
       @if (isAberta(sessao.id)) {
