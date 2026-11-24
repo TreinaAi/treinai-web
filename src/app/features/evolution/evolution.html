@@ -1,0 +1,31 @@
+<div class="card">
+  <div class="section-title" style="margin-top: 0;">Nova Medição</div>
+  
+  <div class="grid2" style="margin-bottom: 10px;">
+    <label class="field">Data <input type="date" class="inp" [(ngModel)]="novaMedicao.data"></label>
+    <label class="field">Peso (kg) <input type="text" class="inp" [(ngModel)]="novaMedicao.peso" placeholder="75.5"></label>
+    <label class="field">Cintura (cm) <input type="text" class="inp" [(ngModel)]="novaMedicao.cintura" placeholder="80"></label>
+    <label class="field">Braço (cm) <input type="text" class="inp" [(ngModel)]="novaMedicao.braco" placeholder="35"></label>
+  </div>
+  
+  <button class="btn primary" (click)="salvar()">Salvar Medição</button>
+</div>
+
+<div class="section-title">Histórico de Medições</div>
+
+@if (db.evo().length === 0) {
+  <div class="empty">Nenhuma medição registrada.</div>
+} @else {
+  @for (evo of db.evo().slice().reverse(); track evo.id) {
+    <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div style="font-weight: 600;">{{ evo.data | date:'dd/MM/yyyy' }}</div>
+        <div class="small muted">
+          @if (evo.peso) { Peso: {{ evo.peso }}kg } 
+          @if (evo.braco) { · Braço: {{ evo.braco }}cm }
+        </div>
+      </div>
+      <button class="btn tiny danger" (click)="db.removeEvo(evo.id)">✕</button>
+    </div>
+  }
+}

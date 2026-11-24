@@ -1,0 +1,35 @@
+@if (db.sessions().length === 0) {
+  <div class="empty">
+    <span style="font-size: 30px; display: block; margin-bottom: 8px;">📋</span>
+    Nenhuma sessão registrada ainda.<br>
+    Comece pela aba <strong>Treino</strong>.
+  </div>
+} @else {
+  <div class="section-title">Suas Sessões</div>
+  
+  @for (session of db.sessions().slice().reverse(); track session.id) {
+    <div class="card">
+      <div class="row-between" style="margin: 0 0 10px;">
+        <div>
+          <div style="font-weight: 650;">{{ session.data | date:'dd/MM/yyyy' }}</div>
+          <div class="small muted">Semana {{ session.semana }} · {{ session.entradas.length }} exercícios</div>
+        </div>
+        <span class="pill" style="background: rgba(34,211,165,.14); color: var(--acc);">Treino {{ session.treino }}</span>
+      </div>
+      
+      <div style="border-top: 1px solid var(--line); padding-top: 10px;">
+        @for (entrada of session.entradas; track $index) {
+          <div style="margin-bottom: 8px; font-size: 13px;">
+            <div style="font-weight: 600;">{{ entrada.exercicio }}</div>
+            <div class="small" style="color: var(--acc);">
+              {{ entrada.sets.length }} séries: 
+              @for (set of entrada.sets; track $index) {
+                {{ set.kg }}kg×{{ set.reps }} 
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+}

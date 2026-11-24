@@ -1,0 +1,26 @@
+<header class="topbar">
+  <div class="logo">TA</div>
+  <div>
+    <h1>TreinAi</h1>
+    <p>Seu assistente de treino</p>
+  </div>
+</header>
+
+<main>
+  <router-outlet />
+</main>
+
+<nav class="tabbar">
+  <a routerLink="/workout" routerLinkActive="active" class="nav-btn">
+    <span class="ic">🏋️</span>Treino
+  </a>
+  <a routerLink="/history" routerLinkActive="active" class="nav-btn">
+    <span class="ic">📋</span>Histórico
+  </a>
+  <a routerLink="/evolution" routerLinkActive="active" class="nav-btn">
+    <span class="ic">📈</span>Evolução
+  </a>
+  <a routerLink="/guide" routerLinkActive="active" class="nav-btn">
+    <span class="ic">📖</span>Guia
+  </a>
+</nav>

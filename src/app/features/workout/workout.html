@@ -1,0 +1,56 @@
+@if (!db.draft()) {
+  <div class="card">
+    <h2>Escolha o treino</h2>
+    <p>Alterne A → B → A na mesma semana.</p>
+  </div>
+
+  @for (w of abasTreino; track w) {
+    <div class="wcard">
+      <h3>Treino {{ w }}</h3>
+      <p class="muted">{{ db.templates()[w].foco }}</p>
+      <button class="btn primary" (click)="db.startSession(w)">Iniciar Treino {{ w }}</button>
+    </div>
+  }
+} @else {
+  <div class="card">
+    <div class="row-between">
+      <h2>Treino {{ db.draft()!.treino }}</h2>
+      <button class="btn tiny danger" (click)="db.cancelSession()">Descartar</button>
+    </div>
+    <label>Semana: 
+      <input type="number" [ngModel]="db.draft()!.semana" 
+             (ngModelChange)="db.updateDraft(d => d.semana = $event)">
+    </label>
+  </div>
+
+  @for (ex of db.templates()[db.draft()!.treino].exercicios; track $index; let i = $index) {
+    <div class="card ex">
+      <div class="ex-header">
+        <span class="ex-num">{{ i + 1 }}</span>
+        <div>
+          <div class="ex-name">{{ ex.nome }}</div>
+          <div class="ex-meta">{{ ex.grupoMuscular }} · {{ ex.series }}×{{ ex.repeticoes }}</div>
+        </div>
+      </div>
+      
+      <div class="ex-body">
+        @for (set of db.draft()!.entradas[i].sets; track $index; let s = $index) {
+          <div class="set-row">
+            <span class="set-n">{{ s + 1 }}</span>
+            <input class="inp" placeholder="kg" 
+                   [ngModel]="set.kg" 
+                   (ngModelChange)="updateSet(i, s, 'kg', $event)">
+            <span>×</span>
+            <input class="inp" placeholder="reps" 
+                   [ngModel]="set.reps" 
+                   (ngModelChange)="updateSet(i, s, 'reps', $event)">
+            <button class="check" [class.done]="set.concluida" 
+                    (click)="toggleSetDone(i, s)">✓</button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <button class="btn primary" (click)="db.finishSession()">Finalizar Treino</button>
+}

@@ -1,0 +1,53 @@
+.wcard{
+  background:linear-gradient(160deg,var(--surf2),var(--surf));
+  border:1px solid var(--line);border-radius:18px;padding:16px;
+  margin-bottom:12px;
+}
+.wcard h3{font-size:19px}
+.wcard .wlist{font-size:12.5px;color:var(--mut);margin:12px 0 14px;line-height:1.6}
+
+.pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;}
+.pill-accent{background:rgba(34,211,165,.14);color:var(--acc)}
+.pill-blue{background:rgba(59,130,246,.15);color:#7cb0ff}
+.pill-next{background:rgba(251,191,36,.14);color:var(--warn)}
+.pill-mut{background:rgba(139,155,171,.13);color:var(--mut)}
+
+.ex{padding:0;overflow:hidden}
+.ex-head{display:flex;align-items:center;gap:11px;padding:13px 14px;cursor:pointer}
+.ex-num{
+  width:27px;height:27px;flex:none;border-radius:9px;background:var(--surf2);
+  border:1px solid var(--line);display:grid;place-items:center;
+  font-size:12.5px;font-weight:700;color:var(--mut);
+}
+.ex-titles{flex:1;min-width:0}
+.ex-name{font-size:14.5px;font-weight:620;line-height:1.25}
+.ex-meta{font-size:11.5px;color:var(--mut);margin-top:2px}
+.ex-progress{
+  font-size:11.5px;font-weight:700;color:var(--mut);
+  background:var(--surf2);border-radius:8px;padding:4px 8px;flex:none;
+}
+.ex-body{padding:0 14px 14px;border-top:1px solid var(--line);padding-top:12px}
+
+.set-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.set-n{width:22px;flex:none;text-align:center;font-size:12px;font-weight:700;color:var(--mut);}
+.set-row .inp{flex:1;min-width:0;text-align:center;padding:10px 6px;font-size:15px;font-weight:600}
+.set-row .x{color:var(--mut);font-size:13px}
+
+.check{
+  width:42px;height:42px;flex:none;border-radius:12px;border:1px solid var(--line);
+  background:var(--surf2);color:#54637a;font-size:16px;cursor:pointer;
+  transition:all .15s;display:grid;place-items:center;
+}
+.check.done{background:var(--acc);border-color:var(--acc);color:#04231a}
+
+.ex-foot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 8px}
+.ex-foot .inp{padding:9px 10px;font-size:13px}
+.hint{
+  font-size:11.5px;color:var(--mut);background:rgba(59,130,246,.07);
+  border-left:2px solid rgba(59,130,246,.5);padding:7px 10px;border-radius:0 8px 8px 0;
+  margin-top:9px;line-height:1.45;
+}
+
+.actions{display:flex;gap:10px;margin:18px 0 8px}
+.actions .btn.primary{flex:1}
+.actions .btn.ghost{flex:none}

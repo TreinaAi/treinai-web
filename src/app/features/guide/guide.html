@@ -1,0 +1,11 @@
+<div class="card">
+  <h2 style="font-size: 17px; margin-bottom: 4px;">Guia de Treino</h2>
+  <p class="small muted">Orientações para maximizar seus resultados.</p>
+</div>
+
+@for (dica of dicas; track dica.titulo) {
+  <div class="card">
+    <div style="font-weight: 650; color: var(--acc); margin-bottom: 4px;">{{ dica.titulo }}</div>
+    <div class="small" style="line-height: 1.5;">{{ dica.texto }}</div>
+  </div>
+}
