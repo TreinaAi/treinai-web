@@ -1,5 +1,5 @@
 .chart{width:100%;height:auto;display:block;margin-top:6px}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat-grid{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:8px;margin-top:12px}
 .stat{background:var(--surf2);border-radius:11px;padding:9px 10px}
 .stat .k{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
 .stat .v{font-size:16px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
